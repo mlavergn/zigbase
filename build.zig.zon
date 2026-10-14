@@ -1,0 +1,16 @@
+.{
+    .name = .zigbase,
+    .description = "Zig Base Template",
+    .version = "0.0.1",
+    .fingerprint = 0x306d84a98792d6b2,
+    .minimum_zig_version = "0.17.0",
+    .paths = .{
+        "src",
+    },
+    .dependencies = .{
+        .zigbuildx = .{
+            .url = "git+https://github.com/mlavergn/zigbuildx#main",
+            .hash = "zigbuildx-3.2.0-9koPhAfUAwC2g9G5m6ArB2K3m9fp_2nVc4VSmXFbgrJQ",
+        },
+    },
+}
