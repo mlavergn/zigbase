@@ -27,7 +27,8 @@ not root at `module.zig`) — keep it in step with the barrel.
 ## Commands
 
 `make validate` (`clean format lint build test`) is the pre-commit gate — run it
-before declaring work done. `make help` and the Makefile cover the rest.
+before declaring work done. `make format`, `make lint`, and `make validate` come
+from `../styleguide/Makefile.in`. `make help` and the Makefile cover the rest.
 
 - `make test` runs three separate test binaries (`src/`, `cli/`, `web/` modules).
 - `make demo` binds a random user-range port and opens a browser. `make docs`
@@ -35,28 +36,27 @@ before declaring work done. `make help` and the Makefile cover the rest.
 
 Gotchas:
 
-- `make format` runs under `/bin/sh`, which does not expand `**` recursively — it
-  only reaches one directory deep. **`build.zig` at the root is never formatted by
-  it**; run `zig fmt build.zig` explicitly.
 - `-Dtest-filter=<str>` is declared but only feeds the `config` options module; it
   does not actually filter tests.
-- `make lint` cannot fail on findings: every rule in `styleguide/zlint.json` is
-  `warn` and `--deny-warnings` is not passed. Read the output, not the exit code.
+- `make lint` fails on any finding: zlintpre's summary is checked, and zlint runs
+  with `-c ../styleguide --deny-warnings`, so warnings are errors. New source roots
+  go in `ZIG_DIRS` in the Makefile.
 - **For stdout/stderr use `std.Io.File.stdout().writerStreaming(io, &buf)`, not
   `.writer(...)`.** `writer()` defaults to *positional* writes, which interleave
   destructively with the streaming writes `std.log` makes to the same terminal.
 
 ## Style
 
-`styleguide/ZIGSTYLE.md` is authoritative and imported below — conform code to it,
+`../styleguide/ZIGSTYLE.md` is authoritative and imported below — conform code to it,
 not the reverse. The rule most often broken by habit: **enum variants are
 camelCase** (`.startOfBlock`), unlike Zig std.
 
-**Before using any `std` API, check `styleguide/ZIGMIGRATE.md`.** Zig 0.16 removed
+**Before using any `std` API, check `../styleguide/ZIGMIGRATE.md`.** Zig 0.16 removed
 or reshaped a lot (`std.net`, `std.fs.File`, `std.crypto.random`,
 `GeneralPurposeAllocator`, managed `std.ArrayList`). Never use a deprecated API,
 and clear any deprecation warning in the same change that produced it.
 
-`styleguide/` is vendored — do not edit it here; flag upstream if a rule is wrong.
+`../styleguide` is the shared sibling checkout (its own repo) — never edit it from
+this repo; flag upstream if a rule is wrong.
 
-@styleguide/ZIGSTYLE.md
+@../styleguide/ZIGSTYLE.md

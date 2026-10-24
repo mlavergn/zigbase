@@ -6,6 +6,9 @@
 #
 ###############################################
 
+# Optional include to extend the makefile targets
+-include ../styleguide/Makefile.in
+
 .DEFAULT_GOAL := all
 
 .PHONY: build dist run
@@ -24,10 +27,6 @@ VERSION := $(shell sed -n -E 's/^[[:space:]]*\.version[[:space:]]*=[[:space:]]*"
 # Build, format, and test.
 all: build format test
 	@echo "done"
-
-# Full pre-commit gate: clean, format, lint, build, then test.
-validate: clean format lint build test
-	@echo "validate done"
 
 # ---------------------------------------------
 # Build
@@ -72,19 +71,6 @@ targets:
 # Run the unit test suite.
 test:
 	zig build test --summary all
-
-# ---------------------------------------------
-# Format & lint
-# ---------------------------------------------
-
-# Format the Zig sources.
-format:
-	zig fmt **/*.zig
-
-# Lint the Zig sources. Warnings are errors.
-lint:
-	zlintpre
-	zlint -c styleguide
 
 # ---------------------------------------------
 # Documentation

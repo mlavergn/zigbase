@@ -42,9 +42,5 @@ make demo       # the web console on a random port, opens a browser
 
 ## Conventions
 
-`styleguide/ZIGSTYLE.md` is authoritative for style and layout;
-`styleguide/ZIGMIGRATE.md` covers the Zig 0.17 API changes. Both are vendored
-from a shared standard — follow them, don't edit them here.
-
 Requires Zig 0.17.0. The module has no external dependencies and must keep it
 that way.
