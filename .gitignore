@@ -4,4 +4,6 @@ zig-out/
 .gitmodule
 .claude
 zig-pkg/
-signing.zon
+
+# Backups zsecrets import and the signing.zon cleanup leave until checked
+*.bak

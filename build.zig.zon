@@ -1,7 +1,7 @@
 .{
     .name = .zigbase,
     .description = "Zig Base Template",
-    .version = "0.0.2",
+    .version = "0.0.3",
     .fingerprint = 0x306d84a98792d6b2,
     .minimum_zig_version = "0.17.0",
     .paths = .{
