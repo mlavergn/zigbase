@@ -5,6 +5,7 @@
 
 const std = @import("std");
 
+/// The console's single-threaded HTTP listener.
 pub const Server = @import("server.zig").Server;
 
 // -----------------------------------------------------------------------------

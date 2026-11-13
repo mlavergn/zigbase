@@ -15,6 +15,7 @@ pub const Base = struct {
     /// The subject used when the caller does not name one.
     pub const default_subject: []const u8 = "World";
 
+    /// Allocator for the messages; outlives the value.
     allocator: std.mem.Allocator,
 
     /// The most recent message. Owned here, not by the caller: this struct
@@ -23,23 +24,18 @@ pub const Base = struct {
 
     /// Constructs a `Base` bound to `allocator`.
     ///
-    /// Parameters:
     /// - `allocator`: allocator for the strings this produces; must outlive the
     ///   value and every string still held from it.
-    ///
-    /// Return: an initialized `Base`; the error union is reserved for the
-    /// lifecycle convention and yields no error today.
+    /// - Returns: an initialized `Base`; the error union is reserved for the
+    ///   lifecycle convention and yields no error today.
     pub fn init(allocator: std.mem.Allocator) !Self {
         return Self{ .allocator = allocator };
     }
 
-    /// Releases the value and the message it holds.
+    /// Releases the value and the message it holds. Any slice handed out by
+    /// `getMessage` is invalid after this returns.
     ///
-    /// Parameters:
     /// - `self`: the value to tear down.
-    ///
-    /// Return: nothing. Any slice handed out by `getMessage` is invalid after
-    /// this returns.
     pub fn deinit(self: *Self) void {
         self.allocator.free(self.message);
     }
@@ -52,12 +48,10 @@ pub const Base = struct {
     /// Replaces any previously held message, so the memory does not grow with
     /// repeated calls.
     ///
-    /// Parameters:
     /// - `self`: the value supplying the allocator and holding the result.
     /// - `subject`: who to greet; borrowed only for the duration of the call.
-    ///
-    /// Return: the message, borrowed from `self` and valid until the next
-    /// `getMessage` or `deinit`; propagates allocation failure.
+    /// - Returns: the message, borrowed from `self` and valid until the next
+    ///   `getMessage` or `deinit`; propagates allocation failure.
     pub fn getMessage(self: *Self, subject: []const u8) ![]const u8 {
         log.debug("{s}:{d} :: {s}", .{ @src().file, @src().line, @src().fn_name });
 

@@ -9,40 +9,35 @@ const mod = @import("zigbase");
 pub const Client = struct {
     const Self = @This();
 
+    /// Allocator for the greeting the client renders.
     allocator: std.mem.Allocator,
+    /// IO interface, held for the operations a real client would need.
     io: std.Io,
 
     /// Constructs a client bound to the process capabilities.
     ///
-    /// Parameters:
     /// - `allocator`: allocator for the greeting the client renders.
     /// - `io`: IO interface, held for the operations a real client would need.
-    ///
-    /// Return: an initialized `Client`; the error union is reserved for the
-    /// lifecycle convention and yields no error today.
+    /// - Returns: an initialized `Client`; the error union is reserved for the
+    ///   lifecycle convention and yields no error today.
     pub fn init(allocator: std.mem.Allocator, io: std.Io) !Self {
         return Self{ .allocator = allocator, .io = io };
     }
 
-    /// Releases the client.
+    /// Releases the client. The message belongs to the `mod.Base` that made it
+    /// and is released with it.
     ///
-    /// Parameters:
     /// - `self`: the client to tear down.
-    ///
-    /// Return: nothing. The message belongs to the `mod.Base` that made it and
-    /// is released with it.
     pub fn deinit(self: *Self) void {
         _ = self;
     }
 
     /// Greets the subject named on the command line and writes the result.
     ///
-    /// Parameters:
     /// - `self`: the client supplying the allocator.
     /// - `writer`: destination for the greeting; flushed before returning.
     /// - `args`: the full argument vector, program name included.
-    ///
-    /// Return: nothing on success; propagates allocation and write failures.
+    /// - Returns: nothing on success; propagates allocation and write failures.
     pub fn run(self: *Self, writer: *std.Io.Writer, args: []const [:0]const u8) !void {
         log.debug("{s}:{d} :: {s}", .{ @src().file, @src().line, @src().fn_name });
 
@@ -75,7 +70,7 @@ test "client greets the subject from the argument vector" {
     var output: std.Io.Writer.Allocating = .init(allocator);
     defer output.deinit();
 
-    try client.run(&output.writer, &.{ "zigbase", "Zig" });
+    try client.run(&output.writer, &.{ "zbase", "Zig" });
     try std.testing.expectEqualStrings(mod.test_greeting ++ "\n", output.written());
 }
 
@@ -88,6 +83,6 @@ test "client greets the world when given no subject" {
     var output: std.Io.Writer.Allocating = .init(allocator);
     defer output.deinit();
 
-    try client.run(&output.writer, &.{"zigbase"});
+    try client.run(&output.writer, &.{"zbase"});
     try std.testing.expectEqualStrings("Hello " ++ mod.Base.default_subject ++ "\n", output.written());
 }

@@ -4,4 +4,5 @@
 //! solely for the `docs` build step. It re-exports the barrel; the rest of the
 //! module comes along with it.
 
+/// The library barrel, re-exported for autodoc.
 pub const mod = @import("module.zig");

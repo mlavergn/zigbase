@@ -1,4 +1,5 @@
 const std = @import("std");
+const log = std.log.scoped(.zigbase_web_main);
 const web = @import("module.zig");
 const builtin = @import("builtin");
 
@@ -12,11 +13,11 @@ pub const std_options: std.Options = .{
 /// Keeps the executable thin: everything the console does lives in `web.Server`
 /// so it stays reachable from the unit test suite.
 ///
-/// Parameters:
 /// - `init`: process capabilities supplied by the runtime (allocator, IO, args).
-///
-/// Return: does not return while serving; propagates argument and bind errors.
+/// - Returns: does not return while serving; propagates argument and bind errors.
 pub fn main(init: std.process.Init) !void {
+    log.debug("{s}:{d} :: {s}", .{ @src().file, @src().line, @src().fn_name });
+
     const args = try init.minimal.args.toSlice(init.arena.allocator());
     const port: ?u16 = if (args.len > 1) try std.fmt.parseInt(u16, args[1], 10) else null;
 

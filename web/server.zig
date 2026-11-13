@@ -18,24 +18,27 @@ pub const Server = struct {
     /// so this is a compile-time invariant, not something a flag can widen.
     pub const host: []const u8 = "127.0.0.1";
 
-    /// The IANA user port range, inclusive: below it needs privileges, above it
-    /// is the ephemeral range the OS hands out to outbound connections.
+    /// The bottom of the IANA user port range, inclusive: below it needs
+    /// privileges.
     pub const min_port: u16 = 1024;
+    /// The top of the IANA user port range, inclusive: above it is the
+    /// ephemeral range the OS hands out to outbound connections.
     pub const max_port: u16 = 49151;
 
+    /// Allocator for per-request state.
     allocator: std.mem.Allocator,
+    /// IO interface for the listening socket and its streams.
     io: std.Io,
+    /// The loopback address and port the listener binds.
     address: std.Io.net.IpAddress,
 
     /// Constructs a listener bound to `port` on the loopback address.
     ///
-    /// Parameters:
     /// - `allocator`: allocator for per-request state.
     /// - `io`: IO interface used for the listening socket and its streams.
     /// - `port`: the port to bind, or null to pick one at random so several
     ///   consoles can run side by side without colliding.
-    ///
-    /// Return: an initialized `Server`; propagates address-parsing failures.
+    /// - Returns: an initialized `Server`; propagates address-parsing failures.
     pub fn init(allocator: std.mem.Allocator, io: std.Io, port: ?u16) !Self {
         return Self{
             .allocator = allocator,
@@ -44,23 +47,18 @@ pub const Server = struct {
         };
     }
 
-    /// Releases the listener.
+    /// Releases the listener. The socket is owned by `run` for its duration.
     ///
-    /// Parameters:
     /// - `self`: the listener to tear down.
-    ///
-    /// Return: nothing. The socket is owned by `run` for its duration.
     pub fn deinit(self: *Self) void {
         _ = self;
     }
 
     /// Binds the socket and serves connections until the process is stopped.
     ///
-    /// Parameters:
     /// - `self`: the listener supplying the address and allocator.
     /// - `writer`: destination for the startup banner; flushed before serving.
-    ///
-    /// Return: never returns normally; propagates bind failures.
+    /// - Returns: never returns normally; propagates bind failures.
     pub fn run(self: *const Self, writer: *std.Io.Writer) !void {
         log.debug("{s}:{d} :: {s}", .{ @src().file, @src().line, @src().fn_name });
 
@@ -94,13 +92,11 @@ pub const Server = struct {
     /// A demo that makes the operator copy a URL out of the terminal has an
     /// avoidable step in it, and the port is random so there is nothing to
     /// bookmark. Failure is deliberately not fatal: a headless host has no
-    /// browser to launch, and the server is perfectly usable without one.
+    /// browser to launch, and the server is perfectly usable without one, so
+    /// launch failures are logged, not propagated.
     ///
-    /// Parameters:
     /// - `self`: the listener supplying the IO interface.
     /// - `url`: the address to open.
-    ///
-    /// Return: nothing; launch failures are logged, not propagated.
     fn openInBrowser(self: *const Self, url: []const u8) void {
         const argv: []const []const u8 = switch (builtin.os.tag) {
             .macos => &.{ "open", url },
@@ -126,11 +122,9 @@ pub const Server = struct {
 
     /// Serves exactly one request on `stream`, then lets the caller close it.
     ///
-    /// Parameters:
     /// - `self`: the listener supplying the IO interface.
     /// - `stream`: the accepted connection.
-    ///
-    /// Return: nothing on success; propagates request and response failures.
+    /// - Returns: nothing on success; propagates request and response failures.
     fn serveConnection(self: *const Self, stream: std.Io.net.Stream) !void {
         var read_buffer: [connection_buffer_size]u8 = undefined;
         var write_buffer: [connection_buffer_size]u8 = undefined;
@@ -151,11 +145,9 @@ pub const Server = struct {
 
     /// Routes one request to the greeting page or a 404.
     ///
-    /// Parameters:
     /// - `self`: the listener supplying the allocator.
     /// - `request`: the received request.
-    ///
-    /// Return: nothing on success; propagates response failures.
+    /// - Returns: nothing on success; propagates response failures.
     fn handle(self: *const Self, request: *std.http.Server.Request) !void {
         const path = pathOf(request.head.target);
         log.debug("{s} {s}", .{ @tagName(request.head.method), path });
@@ -169,11 +161,9 @@ pub const Server = struct {
 
     /// Renders the library's greeting as the response body.
     ///
-    /// Parameters:
     /// - `self`: the listener supplying the allocator.
     /// - `request`: the request to answer.
-    ///
-    /// Return: nothing on success; propagates allocation and write failures.
+    /// - Returns: nothing on success; propagates allocation and write failures.
     fn respondGreeting(self: *const Self, request: *std.http.Server.Request) !void {
         var base = try mod.Base.init(self.allocator);
         defer base.deinit();
@@ -197,12 +187,10 @@ pub const Server = struct {
     /// over responsibility for the release: the page is built per request and
     /// there is nothing on the listener worth keeping it alive for.
     ///
-    /// Parameters:
     /// - `self`: the listener supplying the allocator.
     /// - `message`: the greeting to display.
-    ///
-    /// Return: an HTML document the caller frees with the listener's
-    /// allocator; propagates allocation failure.
+    /// - Returns: an HTML document the caller frees with the listener's
+    ///   allocator; propagates allocation failure.
     fn renderOwned(self: *const Self, message: []const u8) ![]u8 {
         return self.allocator.print(
             \\<!doctype html>
@@ -219,10 +207,8 @@ pub const Server = struct {
     /// `io.random` is the seeded generator, not `randomSecure`: the port only
     /// has to be unlikely to collide, and nothing about it is a secret.
     ///
-    /// Parameters:
     /// - `io`: IO interface supplying the entropy.
-    ///
-    /// Return: a port in `min_port...max_port`.
+    /// - Returns: a port in `min_port...max_port`.
     fn randomPort(io: std.Io) u16 {
         var bytes: [2]u8 = undefined;
         io.random(&bytes);
@@ -234,10 +220,8 @@ pub const Server = struct {
 
     /// Strips the query string from a request target.
     ///
-    /// Parameters:
     /// - `target`: the raw request target.
-    ///
-    /// Return: the path portion, borrowed from `target`.
+    /// - Returns: the path portion, borrowed from `target`.
     fn pathOf(target: []const u8) []const u8 {
         const split = std.mem.findScalar(u8, target, '?') orelse return target;
         return target[0..split];

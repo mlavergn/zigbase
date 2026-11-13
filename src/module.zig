@@ -6,8 +6,10 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
+/// Whether this is a debug build.
 pub const is_debug = builtin.mode == .debug;
 
+/// The template's placeholder feature: it builds greeting strings.
 pub const Base = @import("base.zig").Base;
 
 // -----------------------------------------------------------------------------

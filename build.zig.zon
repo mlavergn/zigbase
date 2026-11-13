@@ -1,16 +1,20 @@
 .{
     .name = .zigbase,
     .description = "Zig Base Template",
-    .version = "0.0.4",
+    .version = "0.0.5",
     .fingerprint = 0x306d84a98792d6b2,
-    .minimum_zig_version = "0.17.0",
+    .minimum_zig_version = "0.17.1",
     .paths = .{
         "src",
     },
     .dependencies = .{
+        .ziggui = .{
+            .path = "../ziggui",
+            .clone = "git@github.com:mlavergn/ziggui.git",
+        },
         .zigbuildx = .{
-            .url = "git+https://github.com/mlavergn/zigbuildx?ref=v5.1.0#57e98c96795f708fc91e69eab2ce8cf6ec350cee",
-            .hash = "zigbuildx-5.1.0-9koPhJcsBAB39QF21x2r6-T1LQi32FrZmnpvzyLkYoxO",
+            .url = "git+https://github.com/mlavergn/zigbuildx?ref=v6.5.0#54022f6d636c80059bcff98550bef4fe321cd74b",
+            .hash = "zigbuildx-6.5.0-9koPhGrSBgA6VjMg3iR4Td5q9q-_aMSscM2rn8Qjoqwr",
         },
     },
 }

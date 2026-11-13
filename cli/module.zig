@@ -5,6 +5,7 @@
 
 const std = @import("std");
 
+/// The demo CLI's behavior: greet, and say so on stdout.
 pub const Client = @import("client.zig").Client;
 
 // -----------------------------------------------------------------------------

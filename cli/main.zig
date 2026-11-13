@@ -1,4 +1,5 @@
 const std = @import("std");
+const log = std.log.scoped(.zigbase_cli_main);
 const cli = @import("module.zig");
 const builtin = @import("builtin");
 
@@ -12,11 +13,11 @@ pub const std_options: std.Options = .{
 /// Keeps the executable thin: everything the CLI does lives in `cli.Client`
 /// so it stays reachable from the unit test suite.
 ///
-/// Parameters:
 /// - `init`: process capabilities supplied by the runtime (allocator, IO, args).
-///
-/// Return: nothing on success; propagates whatever the client failed with.
+/// - Returns: nothing on success; propagates whatever the client failed with.
 pub fn main(init: std.process.Init) !void {
+    log.debug("{s}:{d} :: {s}", .{ @src().file, @src().line, @src().fn_name });
+
     const args = try init.minimal.args.toSlice(init.arena.allocator());
 
     var buffer: [1024]u8 = undefined;
